@@ -7,6 +7,12 @@ type AuthResponse {
   user: User!
 }
 
+input CreateProductInput {
+  description: String
+  name: String!
+  price: Float!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -18,12 +24,27 @@ input LoginInput {
 }
 
 type Mutation {
+  createProduct(input: CreateProductInput!): Product!
+  deleteProduct(id: String!): Product!
   login(input: LoginInput!): AuthResponse!
   register(input: RegisterInput!): User!
+  updateProduct(id: String!, input: UpdateProductInput!): Product!
+}
+
+type Product {
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  name: String!
+  price: Float!
+  updatedAt: DateTime!
+  user: User!
+  userId: String!
 }
 
 type Query {
   hello: String!
+  myProducts: [Product!]!
 }
 
 input RegisterInput {
@@ -31,6 +52,12 @@ input RegisterInput {
   firstName: String
   lastName: String
   password: String!
+}
+
+input UpdateProductInput {
+  description: String
+  name: String
+  price: Float
 }
 
 type User {
