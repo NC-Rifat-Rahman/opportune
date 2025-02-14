@@ -6,14 +6,18 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createProduct(userId: string, input: CreateProductInput) {
-    console.log("userId",userId);
-    
+    const { name, description, price } = input
+
+    const modifiedName = name.toLowerCase().replace(/\s+/g, '-');
+
     return this.prisma.product.create({
       data: {
-        ...input,
+        name: modifiedName,
+        description,
+        price,
         userId,
       },
       include: {
