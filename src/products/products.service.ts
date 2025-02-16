@@ -9,7 +9,7 @@ export class ProductsService {
   constructor(private prisma: PrismaService) { }
 
   async createProduct(userId: string, input: CreateProductInput) {
-    const { name, description, price, categories } = input
+    const { name, description, price, rentPrice, categories } = input
 
     const modifiedName = name.toLowerCase().replace(/\s+/g, '-');
 
@@ -18,6 +18,7 @@ export class ProductsService {
         name: modifiedName,
         description,
         price,
+        rentPrice,
         categories,
         userId,
       },

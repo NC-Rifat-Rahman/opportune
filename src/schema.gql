@@ -98,6 +98,7 @@ input UpdateProductInput {
   description: String
   name: String
   price: Float
+  rentPrice: Float
 }
 
 type User {
