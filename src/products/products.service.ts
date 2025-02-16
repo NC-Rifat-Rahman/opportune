@@ -9,7 +9,7 @@ export class ProductsService {
   constructor(private prisma: PrismaService) { }
 
   async createProduct(userId: string, input: CreateProductInput) {
-    const { name, description, price } = input
+    const { name, description, price, categories } = input
 
     const modifiedName = name.toLowerCase().replace(/\s+/g, '-');
 
@@ -18,6 +18,7 @@ export class ProductsService {
         name: modifiedName,
         description,
         price,
+        categories,
         userId,
       },
       include: {
@@ -72,9 +73,15 @@ export class ProductsService {
   async getUserProducts(userId: string) {
     return this.prisma.product.findMany({
       where: { userId },
-      include: {
-        user: true,
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        rentPrice: true,
+        categories: true, // Ensure categories are explicitly selected
+        userId: true,
       },
     });
-  }
+  }  
 }

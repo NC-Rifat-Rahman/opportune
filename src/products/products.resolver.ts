@@ -41,6 +41,8 @@ export class ProductsResolver {
 
   @Query(() => [Product])
   myProducts(@CurrentUser() user: { id: string }) {
+    console.log("product-resolver",user);
+    
     return this.productsService.getUserProducts(user.id);
   }
 }

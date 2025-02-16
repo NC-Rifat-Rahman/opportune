@@ -7,10 +7,21 @@ type AuthResponse {
   user: User!
 }
 
+enum Category {
+  ELECTRONICS
+  FURNITURE
+  HOME_APPLIANCES
+  OUTDOOR
+  SPORTING_GOODS
+  TOYS
+}
+
 input CreateProductInput {
+  categories: [Category!]!
   description: String
   name: String!
   price: Float!
+  rentPrice: Float
 }
 
 """
@@ -32,6 +43,7 @@ type Mutation {
 }
 
 type Product {
+  categories: [Category!]!
   createdAt: DateTime!
   description: String
   id: ID!
