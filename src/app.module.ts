@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './database/prisma.module';
 import { join } from 'path';
 import { ProductsModule } from './products/products.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -20,7 +21,8 @@ import { ProductsModule } from './products/products.module';
     }),
     PrismaModule,
     AuthModule,
-    ProductsModule
+    ProductsModule,
+    TransactionsModule
   ],
 })
 export class AppModule {}
