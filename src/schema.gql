@@ -43,14 +43,16 @@ type Mutation {
 }
 
 type Product {
+  available: Boolean
   categories: [Category!]!
   createdAt: DateTime!
   description: String
   id: ID!
   name: String!
   price: Float!
+  rentPrice: Float
   updatedAt: DateTime!
-  user: User!
+  user: User
   userId: String!
 }
 

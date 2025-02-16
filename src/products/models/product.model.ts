@@ -16,15 +16,21 @@ export class Product {
   @Field(() => Float)
   price: number;
 
+  @Field(() => Float, ({ nullable: true }))
+  rentPrice: number;
+
   @Field()
   userId: string;
 
-  @Field(() => User)
+  @Field({ nullable: true })
+  available?: boolean;
+
+  @Field(() => User,{ nullable: true })
   user: User;
 
   @Field(() => [Category])
   categories: Category[];
-  
+
   @Field()
   createdAt: Date;
 
