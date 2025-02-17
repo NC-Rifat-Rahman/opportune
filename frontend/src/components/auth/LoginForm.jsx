@@ -18,11 +18,21 @@ const LOGIN_MUTATION = gql`
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  
+  const { register, handleSubmit, formState: { errors }, watch } = useForm();  // Include watch here
+
   const [login, { loading, error }] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
       if (data?.login?.user) {
+        const { email } = data.login.user;
+
+        const password = watch('password');
+
+        console.log(email);
+        console.log(password);
+        
+        localStorage.setItem('email', email);
+        localStorage.setItem('password', password);
+
         client.writeQuery({
           query: gql`
             query GetUser {
@@ -36,6 +46,7 @@ const LoginForm = () => {
             user: data.login.user
           },
         });
+
         navigate('/dashboard');
       }
     },
@@ -51,7 +62,7 @@ const LoginForm = () => {
 
   return (
     <AuthLayout title="SIGN IN">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 bg-black">
         <div>
           <input
             {...register('email', { required: "Email is required" })}
@@ -61,7 +72,7 @@ const LoginForm = () => {
           />
           {errors.email && <span className="text-red-500">{errors.email.message}</span>}
         </div>
-        
+
         <div>
           <input
             {...register('password', { required: "Password is required" })}

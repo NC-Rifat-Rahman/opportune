@@ -10,12 +10,8 @@ export class AuthGuard implements CanActivate {
     const ctx = GqlExecutionContext.create(context);
     const { req } = ctx.getContext();
 
-    console.log("ctx",ctx);
-    console.log("req",req);
-    
-    
-    const email = req.headers['x-email'];
-    const password = req.headers['x-password'];
+    const email = req.headers['email'];
+    const password = req.headers['password'];
 
     console.log("email",email);
     console.log("password",password);
@@ -24,7 +20,6 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Missing credentials');
     }
 
-    // Find user and verify password
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -33,7 +28,6 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Attach user to context
     ctx.getContext().user = user;
 
     return true;
