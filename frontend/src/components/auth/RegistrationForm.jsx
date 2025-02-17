@@ -1,156 +1,122 @@
 import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
-import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
-import AuthLayout from './AuthLayout';
-
-const REGISTER_MUTATION = gql`
-  mutation Register($input: RegisterInput!) {
-    register(input: $input) {
-      token
-      user {
-        id
-        email
-        firstName
-        lastName
-      }
-    }
-  }
-`;
 
 const RegistrationForm = () => {
-  const [step, setStep] = useState(1);
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
-  const [formData, setFormData] = useState({});
-  
-  const [registerUser, { loading }] = useMutation(REGISTER_MUTATION, {
-    update: (cache, { data }) => {
-      cache.writeQuery({
-        query: gql`
-          query GetUser {
-            user {
-              id
-              email
-              firstName
-              lastName
-            }
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+    
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    const graphqlQuery = {
+      query: `
+        mutation Register($input: RegisterInput!) {
+          register(input: $input) {
+            id
+            email
           }
-        `,
-        data: {
-          user: data.register.user
+        }
+      `,
+      variables: {
+        input: {
+          email,
+          password
+        }
+      }
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify(graphqlQuery)
       });
-    },
-  });
 
-  const onStepSubmit = (data) => {
-    if (step < 3) {
-      setFormData({ ...formData, ...data });
-      setStep(step + 1);
-    } else {
-      const finalData = { ...formData, ...data };
-      registerUser({ 
-        variables: { 
-          input: finalData 
-        } 
-      });
+      const data = await response.json();
+
+      if (data.errors) {
+        throw new Error(data.errors[0].message || 'Registration failed');
+      }
+
+      if (data.data?.register) {
+        setSuccess(true);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const goBack = () => {
-    setStep(step - 1);
   };
 
   return (
-    <AuthLayout title="SIGN UP">
-      <form onSubmit={handleSubmit(onStepSubmit)} className="space-y-4">
-        {step === 1 && (
-          <>
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                {...register('firstName', { required: true })}
-                className="p-2 border rounded"
-                placeholder="First Name"
-              />
-              <input
-                {...register('lastName', { required: true })}
-                className="p-2 border rounded"
-                placeholder="Last Name"
-              />
-            </div>
-          </>
-        )}
-
-        {step === 2 && (
-          <>
+    <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="px-6 py-4">
+        <h2 className="text-center text-2xl font-bold mb-6">SIGN UP</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
             <input
-              {...register('address', { required: true })}
-              className="w-full p-2 border rounded"
-              placeholder="Address"
+              name="email"
+              type="email"
+              placeholder="Email"
+              required
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <div className="grid grid-cols-2 gap-4">
-              <input
-                {...register('email', { required: true })}
-                type="email"
-                className="p-2 border rounded"
-                placeholder="Email"
-              />
-              <input
-                {...register('phoneNumber', { required: true })}
-                className="p-2 border rounded"
-                placeholder="Phone Number"
-              />
-            </div>
-          </>
-        )}
+          </div>
 
-        {step === 3 && (
-          <>
+          <div>
             <input
-              {...register('password', { required: true })}
+              name="password"
               type="password"
-              className="w-full p-2 border rounded"
               placeholder="Password"
+              required
+              minLength={8}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <input
-              {...register('confirmPassword', {
-                required: true,
-                validate: (val) => val === watch('password')
-              })}
-              type="password"
-              className="w-full p-2 border rounded"
-              placeholder="Confirm Password"
-            />
-          </>
-        )}
+          </div>
 
-        <div className="flex justify-between">
-          {step > 1 && (
-            <button
-              type="button"
-              onClick={goBack}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-            >
-              Back
-            </button>
+          {error && (
+            <div className="bg-red-50 text-red-800 p-4 rounded-md border border-red-200">
+              {error}
+            </div>
           )}
+
+          {success && (
+            <div className="bg-green-50 text-green-800 p-4 rounded-md border border-green-200">
+              Registration successful!
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
-            className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {step === 3 ? (loading ? 'Registering...' : 'REGISTER') : 'Next'}
+            {loading ? 'Registering...' : 'REGISTER'}
           </button>
-        </div>
 
-        <div className="text-center">
-          <span className="text-sm">Already have an account? </span>
-          <Link to="/login" className="text-indigo-600 hover:text-indigo-800">
-            Sign In
-          </Link>
-        </div>
-      </form>
-    </AuthLayout>
+          <div className="text-center mt-4">
+            <span className="text-sm">Already have an account? </span>
+            <button 
+              onClick={() => window.location.href = '/login'} 
+              className="text-blue-600 hover:underline"
+              type="button"
+            >
+              Sign In
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 
