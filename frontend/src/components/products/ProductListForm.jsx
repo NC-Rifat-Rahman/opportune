@@ -22,9 +22,10 @@ const GET_ALL_PRODUCTS = gql`
 `;
 
 const DELETE_PRODUCT = gql`
-  mutation DeleteProduct($id: ID!) {
-    deleteProduct(id: $id) {
+  mutation DeleteProduct($id: String!) {
+    deleteProduct(input: { id: $id }) {
       id
+      name
     }
   }
 `;
@@ -40,8 +41,8 @@ const ProductList = () => {
     update(cache, { data: { deleteProduct } }) {
       const existingProducts = cache.readQuery({ 
         query: GET_ALL_PRODUCTS 
-      });
-      
+      }) || { myProducts: [] };
+
       cache.writeQuery({
         query: GET_ALL_PRODUCTS,
         data: {
@@ -53,23 +54,29 @@ const ProductList = () => {
     },
   });
 
+  // Define the handleDeleteClick function
   const handleDeleteClick = (product) => {
+    console.log("PRODUCTS",product);
+    
     setProductToDelete(product);
     setDeleteModalOpen(true);
   };
 
+  // Define the handleConfirmDelete function
   const handleConfirmDelete = async () => {
     try {
-      await deleteProduct({
+      const response = await deleteProduct({
         variables: { id: productToDelete.id },
       });
+      console.log("Delete response:", response);
       setDeleteModalOpen(false);
       setProductToDelete(null);
     } catch (err) {
-      console.error('Error deleting product:', err);
+      console.log('Error deleting product:', err);
     }
   };
 
+  // Define the handleCancelDelete function
   const handleCancelDelete = () => {
     setDeleteModalOpen(false);
     setProductToDelete(null);
@@ -108,7 +115,7 @@ const ProductList = () => {
                 </div>
               </div>
               <button
-                onClick={() => handleDeleteClick(product)}
+                onClick={() => handleDeleteClick(product)} // Ensure handleDeleteClick is properly referenced
                 className="text-gray-500 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
