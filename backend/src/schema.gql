@@ -99,6 +99,7 @@ enum TransactionType {
 }
 
 input UpdateProductInput {
+  categories: [Category!]!
   description: String
   name: String
   price: Float
