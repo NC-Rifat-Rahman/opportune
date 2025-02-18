@@ -69,6 +69,7 @@ type Product {
 }
 
 type Query {
+  getProductById(id: String!): Product!
   hello: String!
   myProducts: [Product!]!
   myTransactions: [Transaction!]!

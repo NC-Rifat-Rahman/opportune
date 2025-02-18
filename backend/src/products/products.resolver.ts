@@ -11,15 +11,15 @@ import { DeleteProductInput } from './dto/delete-product.input';
 @Resolver(() => Product)
 @UseGuards(AuthGuard)
 export class ProductsResolver {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Mutation(() => Product)
   async createProduct(
     @CurrentUser() user: { id: string },
     @Args('input') input: CreateProductInput,
   ) {
-    console.log("user",user);
-    
+    console.log("user", user);
+
     return this.productsService.createProduct(user.id, input);
   }
 
@@ -39,11 +39,17 @@ export class ProductsResolver {
   ) {
     return this.productsService.deleteProduct(user.id, input.id);
   }
-  
+
+  @Query(() => Product)
+  async getProductById(@Args('id') id: string) {
+    return this.productsService.getProductById(id);
+  }
+
+
   @Query(() => [Product])
   myProducts(@CurrentUser() user: { id: string }) {
-    console.log("product-resolver",user);
-    
+    console.log("product-resolver", user);
+
     return this.productsService.getUserProducts(user.id);
   }
 }
