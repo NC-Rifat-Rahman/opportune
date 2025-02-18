@@ -5,6 +5,7 @@ import LoginForm from "./components/auth/LoginForm";
 import RegistrationForm from "./components/auth/RegistrationForm";
 import CreateProductPage from "./components/products/ProductCreationForm";
 import ProductList from "./components/products/ProductListForm";
+import EditProduct from "./components/products/ProductEditForm";
 import "./App.css";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/register" element={<RegistrationForm />} />
         <Route path="/products/create" element={<CreateProductPage />} />
         <Route path="/products/list" element={<ProductList />} />
+        <Route path="/products/update/:id" element={<EditProduct />} />
       </Routes>
     </BrowserRouter>
   );
