@@ -54,7 +54,6 @@ const ProductList = () => {
     },
   });
 
-  // Define the handleDeleteClick function
   const handleDeleteClick = (product) => {
     console.log("PRODUCTS",product);
     
@@ -62,7 +61,6 @@ const ProductList = () => {
     setDeleteModalOpen(true);
   };
 
-  // Define the handleConfirmDelete function
   const handleConfirmDelete = async () => {
     try {
       const response = await deleteProduct({
@@ -76,7 +74,6 @@ const ProductList = () => {
     }
   };
 
-  // Define the handleCancelDelete function
   const handleCancelDelete = () => {
     setDeleteModalOpen(false);
     setProductToDelete(null);
@@ -115,7 +112,7 @@ const ProductList = () => {
                 </div>
               </div>
               <button
-                onClick={() => handleDeleteClick(product)} // Ensure handleDeleteClick is properly referenced
+                onClick={() => handleDeleteClick(product)}
                 className="text-gray-500 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
