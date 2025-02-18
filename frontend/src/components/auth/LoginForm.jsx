@@ -18,7 +18,7 @@ const LOGIN_MUTATION = gql`
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();  // Include watch here
+  const { register, handleSubmit, formState: { errors }, watch } = useForm();
 
   const [login, { loading, error }] = useMutation(LOGIN_MUTATION, {
     onCompleted: (data) => {
@@ -47,14 +47,14 @@ const LoginForm = () => {
           },
         });
 
-        navigate('/dashboard');
+        navigate('/products/create');
       }
     },
     onError: (err) => {
       console.error("Login failed:", err);
       console.error("Error details:", err.graphQLErrors || err.networkError || err);
     }
-  });
+  }); 
 
   const onSubmit = (data) => {
     login({ variables: data });
@@ -62,7 +62,7 @@ const LoginForm = () => {
 
   return (
     <AuthLayout title="SIGN IN">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 bg-black">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <input
             {...register('email', { required: "Email is required" })}
