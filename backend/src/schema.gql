@@ -36,6 +36,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input DeleteProductInput {
+  id: String!
+}
+
 input LoginInput {
   email: String!
   password: String!
@@ -44,7 +48,7 @@ input LoginInput {
 type Mutation {
   createProduct(input: CreateProductInput!): Product!
   createTransaction(input: CreateTransactionInput!): Transaction!
-  deleteProduct(id: String!): Product!
+  deleteProduct(input: DeleteProductInput!): Product!
   login(input: LoginInput!): AuthResponse!
   register(input: RegisterInput!): User!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
