@@ -6,6 +6,7 @@ import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { DeleteProductInput } from './dto/delete-product.input';
 
 @Resolver(() => Product)
 @UseGuards(AuthGuard)
@@ -34,11 +35,11 @@ export class ProductsResolver {
   @Mutation(() => Product)
   deleteProduct(
     @CurrentUser() user: { id: string },
-    @Args('id') id: string,
+    @Args('input') input: DeleteProductInput,
   ) {
-    return this.productsService.deleteProduct(user.id, id);
+    return this.productsService.deleteProduct(user.id, input.id);
   }
-
+  
   @Query(() => [Product])
   myProducts(@CurrentUser() user: { id: string }) {
     console.log("product-resolver",user);
