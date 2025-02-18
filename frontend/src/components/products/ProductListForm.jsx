@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import { Trash2 } from 'lucide-react';
@@ -34,15 +34,25 @@ const ProductList = () => {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Authentication check
 
-  const { loading, error, data } = useQuery(GET_ALL_PRODUCTS);
+  useEffect(() => {
+    const email = localStorage.getItem('email')
+    const password = localStorage.getItem('password');
+
+    if (email && password) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const { loading, error, data } = useQuery(GET_ALL_PRODUCTS, {
+    skip: !isAuthenticated,
+  });
 
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
     update(cache, { data: { deleteProduct } }) {
-      const existingProducts = cache.readQuery({ 
-        query: GET_ALL_PRODUCTS 
-      }) || { myProducts: [] };
-
+      const existingProducts = cache.readQuery({ query: GET_ALL_PRODUCTS }) || { myProducts: [] };
+      
       cache.writeQuery({
         query: GET_ALL_PRODUCTS,
         data: {
@@ -55,8 +65,6 @@ const ProductList = () => {
   });
 
   const handleDeleteClick = (product) => {
-    console.log("PRODUCTS",product);
-    
     setProductToDelete(product);
     setDeleteModalOpen(true);
   };
@@ -66,7 +74,6 @@ const ProductList = () => {
       const response = await deleteProduct({
         variables: { id: productToDelete.id },
       });
-      console.log("Delete response:", response);
       setDeleteModalOpen(false);
       setProductToDelete(null);
     } catch (err) {
@@ -78,6 +85,19 @@ const ProductList = () => {
     setDeleteModalOpen(false);
     setProductToDelete(null);
   };
+
+  const handleLoginRedirect = () => {
+    navigate('/login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div>
+        <h2>Please log in to view your products.</h2>
+        <button onClick={handleLoginRedirect}>Login</button>
+      </div>
+    );
+  }
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -96,8 +116,8 @@ const ProductList = () => {
 
       <div className="space-y-4">
         {data.myProducts.map((product) => (
-          <div 
-            key={product.id} 
+          <div
+            key={product.id}
             className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
           >
             <div className="flex justify-between items-start">
