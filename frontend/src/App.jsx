@@ -1,27 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ApolloProvider } from '@apollo/client';
+import { client } from './apollo/client';
 import LoginForm from "./components/auth/LoginForm";
 import RegistrationForm from "./components/auth/RegistrationForm";
 import CreateProductPage from "./components/products/ProductCreationForm";
 import MyProductList from "./components/products/MyProductListForm";
 import EditProduct from "./components/products/ProductEditForm";
 import AllProductList from "./components/products/AllProductForm";
+import ProductDetails from "./components/products/ProductDetails";
 import "./App.css";
 
 function App() {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handleNavigation = () => {
+      setCurrentPath(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handleNavigation);
+    return () => window.removeEventListener('popstate', handleNavigation);
+  }, []);
+
+  const renderComponent = () => {
+    switch (currentPath) {
+      case '/':
+      case '/login':
+        return <LoginForm />;
+      case '/register':
+        return <RegistrationForm />;
+      case '/products/create':
+        return <CreateProductPage />;
+      case '/products/mylist':
+        return <MyProductList />;
+      case '/products':
+        return <AllProductList />;
+      default:
+        if (currentPath.startsWith('/products/update/')) {
+          const id = currentPath.split('/').pop();
+          return <EditProduct id={id} />;
+        }
+        if (currentPath.startsWith('/products/details/')) {
+          const id = currentPath.split('/').pop();
+          return <ProductDetails id={id} />;
+        }
+        return <LoginForm />;
+    }
+  };
+
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LoginForm />} />
-        <Route path="/login" element={<LoginForm />} />
-        <Route path="/register" element={<RegistrationForm />} />
-        <Route path="/products/create" element={<CreateProductPage />} />
-        <Route path="/products/mylist" element={<MyProductList />} />
-        <Route path="/products/update/:id" element={<EditProduct />} />
-        <Route path="/products" element={< AllProductList/>} />
-      </Routes>
-    </BrowserRouter>
+    <ApolloProvider client={client}>
+      {renderComponent()}
+    </ApolloProvider>
   );
 }
 

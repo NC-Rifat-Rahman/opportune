@@ -19,7 +19,8 @@ const ProductList = () => {
     const { loading, error, data } = useQuery(GET_ALL_PRODUCTS);
 
     const handleProductClick = (product) => {
-        window.location.href = `/products/${product.id}`;
+        window.history.pushState({}, '', `/products/details/${product.id}`);
+        window.dispatchEvent(new PopStateEvent('popstate'));
     };
 
     if (loading) {
