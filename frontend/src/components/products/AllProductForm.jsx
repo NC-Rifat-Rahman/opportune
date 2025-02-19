@@ -18,8 +18,6 @@ query {
 const ProductList = () => {
     const { loading, error, data } = useQuery(GET_ALL_PRODUCTS);
 
-    console.log({data});
-    
     const handleProductClick = (product) => {
         window.location.href = `/products/${product.id}`;
     };
@@ -41,9 +39,7 @@ const ProductList = () => {
         );
     }
 
-    const products = data?.products || [];
-    console.log({products});
-    
+    const products = data?.getAllProducts || [];
 
     return (
         <div className="max-w-4xl mx-auto p-6">
