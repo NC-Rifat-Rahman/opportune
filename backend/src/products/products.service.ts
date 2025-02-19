@@ -100,4 +100,18 @@ export class ProductsService {
   
     return product;
   }
+  
+  async getAllProducts() {
+    return this.prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        rentPrice: true,
+        categories: true,
+        userId: true,
+      },
+    });
+  }  
 }
