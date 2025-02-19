@@ -80,7 +80,36 @@ export class ProductsService {
         description: true,
         price: true,
         rentPrice: true,
-        categories: true, // Ensure categories are explicitly selected
+        categories: true,
+        userId: true,
+      },
+    });
+  }  
+
+  async getProductById(productId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        user: true,
+      },
+    });
+  
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+  
+    return product;
+  }
+  
+  async getAllProducts() {
+    return this.prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        rentPrice: true,
+        categories: true,
         userId: true,
       },
     });

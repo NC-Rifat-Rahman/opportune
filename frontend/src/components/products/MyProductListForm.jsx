@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Edit } from 'lucide-react';
 
 const GET_ALL_PRODUCTS = gql`
   query GetAllProducts {
@@ -34,15 +34,25 @@ const ProductList = () => {
   const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const { loading, error, data } = useQuery(GET_ALL_PRODUCTS);
+  useEffect(() => {
+    const email = localStorage.getItem('email')
+    const password = localStorage.getItem('password');
+
+    if (email && password) {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const { loading, error, data } = useQuery(GET_ALL_PRODUCTS, {
+    skip: !isAuthenticated,
+  });
 
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
     update(cache, { data: { deleteProduct } }) {
-      const existingProducts = cache.readQuery({ 
-        query: GET_ALL_PRODUCTS 
-      }) || { myProducts: [] };
-
+      const existingProducts = cache.readQuery({ query: GET_ALL_PRODUCTS }) || { myProducts: [] };
+      
       cache.writeQuery({
         query: GET_ALL_PRODUCTS,
         data: {
@@ -54,19 +64,21 @@ const ProductList = () => {
     },
   });
 
-  const handleDeleteClick = (product) => {
-    console.log("PRODUCTS",product);
-    
+  const handleDeleteClick = (e, product) => {
+    e.stopPropagation(); // Prevent triggering the product click
     setProductToDelete(product);
     setDeleteModalOpen(true);
   };
 
+  const handleProductClick = (product) => {
+    navigate(`/products/update/${product.id}`);
+  };
+
   const handleConfirmDelete = async () => {
     try {
-      const response = await deleteProduct({
+      await deleteProduct({
         variables: { id: productToDelete.id },
       });
-      console.log("Delete response:", response);
       setDeleteModalOpen(false);
       setProductToDelete(null);
     } catch (err) {
@@ -78,6 +90,24 @@ const ProductList = () => {
     setDeleteModalOpen(false);
     setProductToDelete(null);
   };
+
+  const handleLoginRedirect = () => {
+    navigate('/login');
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <h2 className="text-xl mb-4">Please log in to view your products.</h2>
+        <button 
+          onClick={handleLoginRedirect}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        >
+          Login
+        </button>
+      </div>
+    );
+  }
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -96,9 +126,10 @@ const ProductList = () => {
 
       <div className="space-y-4">
         {data.myProducts.map((product) => (
-          <div 
-            key={product.id} 
-            className="bg-white rounded-lg shadow-md p-4 border border-gray-200"
+          <div
+            key={product.id}
+            onClick={() => handleProductClick(product)}
+            className="bg-white rounded-lg shadow-md p-4 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow"
           >
             <div className="flex justify-between items-start">
               <div className="space-y-2">
@@ -111,12 +142,20 @@ const ProductList = () => {
                   <p>Status: {product.available ? 'Available' : 'Unavailable'}</p>
                 </div>
               </div>
-              <button
-                onClick={() => handleDeleteClick(product)}
-                className="text-gray-500 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              <div className="flex space-x-2">
+                <button
+                  onClick={(e) => handleProductClick(product)}
+                  className="text-gray-500 hover:text-blue-500 p-2 rounded-full hover:bg-blue-50 transition-colors"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={(e) => handleDeleteClick(e, product)}
+                  className="text-gray-500 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
         ))}

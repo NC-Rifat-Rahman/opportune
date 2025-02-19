@@ -9,21 +9,22 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { DeleteProductInput } from './dto/delete-product.input';
 
 @Resolver(() => Product)
-@UseGuards(AuthGuard)
 export class ProductsResolver {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   @Mutation(() => Product)
+  @UseGuards(AuthGuard)
   async createProduct(
     @CurrentUser() user: { id: string },
     @Args('input') input: CreateProductInput,
   ) {
-    console.log("user",user);
-    
+    console.log("user", user);
+
     return this.productsService.createProduct(user.id, input);
   }
 
   @Mutation(() => Product)
+  @UseGuards(AuthGuard)
   updateProduct(
     @CurrentUser() user: { id: string },
     @Args('id') id: string,
@@ -33,17 +34,31 @@ export class ProductsResolver {
   }
 
   @Mutation(() => Product)
+  @UseGuards(AuthGuard)
   deleteProduct(
     @CurrentUser() user: { id: string },
     @Args('input') input: DeleteProductInput,
   ) {
     return this.productsService.deleteProduct(user.id, input.id);
   }
-  
+
+  @Query(() => Product)
+  @UseGuards(AuthGuard)
+  async getProductById(@Args('id') id: string) {
+    return this.productsService.getProductById(id);
+  }
+
+
   @Query(() => [Product])
+  @UseGuards(AuthGuard)
   myProducts(@CurrentUser() user: { id: string }) {
-    console.log("product-resolver",user);
-    
+    console.log("product-resolver", user);
+
     return this.productsService.getUserProducts(user.id);
+  }
+
+  @Query(() => [Product])
+  async getAllProducts() {
+    return this.productsService.getAllProducts();
   }
 }
