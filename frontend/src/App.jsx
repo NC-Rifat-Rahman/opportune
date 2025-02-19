@@ -4,8 +4,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginForm from "./components/auth/LoginForm";
 import RegistrationForm from "./components/auth/RegistrationForm";
 import CreateProductPage from "./components/products/ProductCreationForm";
-import ProductList from "./components/products/ProductListForm";
+import MyProductList from "./components/products/MyProductListForm";
 import EditProduct from "./components/products/ProductEditForm";
+import AllProductList from "./components/products/AllProductForm";
 import "./App.css";
 
 function App() {
@@ -16,8 +17,9 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegistrationForm />} />
         <Route path="/products/create" element={<CreateProductPage />} />
-        <Route path="/products/list" element={<ProductList />} />
+        <Route path="/products/mylist" element={<MyProductList />} />
         <Route path="/products/update/:id" element={<EditProduct />} />
+        <Route path="/products" element={< AllProductList/>} />
       </Routes>
     </BrowserRouter>
   );
