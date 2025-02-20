@@ -61,6 +61,7 @@ const ProductDetails = ({ id }) => {
   const [showModal, setShowModal] = useState(false);
   const [isRenting, setIsRenting] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [notification, setNotification] = useState(null);
 
   const email = localStorage.getItem("email");
   const password = localStorage.getItem("password");
@@ -79,6 +80,14 @@ const ProductDetails = ({ id }) => {
   const [rentProduct] = useMutation(RENT_PRODUCT);
 
   const handleTransaction = (type) => {
+    const product = data?.getPublicProductById;
+    if (product.user.email === email) {
+      setNotification({
+        type: 'error',
+        message: 'You cannot purchase or rent your own product.'
+      });
+      return;
+    }
     setIsRenting(type === 'rent');
     setShowModal(true);
   };
@@ -103,6 +112,10 @@ const ProductDetails = ({ id }) => {
             },
           },
         });
+        setNotification({
+          type: 'success',
+          message: `Successfully rented ${quantity} item(s) for 7 days.`
+        });
       } else {
         const totalAmount = data.getPublicProductById.price * quantity;
 
@@ -115,10 +128,18 @@ const ProductDetails = ({ id }) => {
             },
           },
         });
+        setNotification({
+          type: 'success',
+          message: `Successfully purchased ${quantity} item(s).`
+        });
       }
       setShowModal(false);
     } catch (error) {
       console.error('Transaction failed:', error);
+      setNotification({
+        type: 'error',
+        message: error.message || 'Transaction failed. Please try again.'
+      });
     }
   };
 
@@ -127,6 +148,16 @@ const ProductDetails = ({ id }) => {
     if (showModal) document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showModal]);
+
+  // Clear notification after 5 seconds
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   const product = data?.getPublicProductById;
 
@@ -170,6 +201,23 @@ const ProductDetails = ({ id }) => {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* Notification Toast */}
+      {notification && (
+        <div 
+          className={`fixed top-4 right-4 p-4 rounded-md shadow-lg ${
+            notification.type === 'success' ? 'bg-green-50 border-l-4 border-green-500' : 'bg-red-50 border-l-4 border-red-500'
+          }`}
+          role="alert"
+        >
+          <p className={`font-bold ${notification.type === 'success' ? 'text-green-800' : 'text-red-800'}`}>
+            {notification.type === 'success' ? 'Success' : 'Error'}
+          </p>
+          <p className={notification.type === 'success' ? 'text-green-700' : 'text-red-700'}>
+            {notification.message}
+          </p>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-4">{product.name}</h1>
         <p className="text-gray-600">{product.description}</p>
@@ -199,6 +247,7 @@ const ProductDetails = ({ id }) => {
           <button
             onClick={() => handleTransaction('buy')}
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition"
+            disabled={!product.available}
           >
             Buy Now
           </button>
@@ -206,6 +255,7 @@ const ProductDetails = ({ id }) => {
             <button
               onClick={() => handleTransaction('rent')}
               className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-md transition"
+              disabled={!product.available}
             >
               Rent Now
             </button>
@@ -229,8 +279,8 @@ const ProductDetails = ({ id }) => {
                 </h2>
                 <p className="mb-6">
                   {isRenting
-                    ? `Do you want to rent this item for $${formattedRentPrice} per day?`
-                    : `Do you want to buy this item for $${formattedPrice}?`}
+                    ? `Do you want to rent ${quantity} item(s) for $${(formattedRentPrice * quantity).toFixed(2)} per day?`
+                    : `Do you want to buy ${quantity} item(s) for $${(formattedPrice * quantity).toFixed(2)}?`}
                 </p>
                 <div className="flex justify-end gap-3">
                   <button
