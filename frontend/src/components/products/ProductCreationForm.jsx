@@ -35,8 +35,8 @@ const CREATE_PRODUCT_MUTATION = gql`
  * @property {Array<string>} categories
  */
 
-/** @type {Array<'ELECTRONICS' | 'FURNITURE' | 'BOOKS' | 'CLOTHING' | 'OTHER'>} */
-const CATEGORIES = ['ELECTRONICS', 'FURNITURE', 'BOOKS', 'CLOTHING', 'OTHER'];
+/** @type {Array<'ELECTRONICS' | 'FURNITURE' | 'HOME_APPLIANCES' | 'SPORTING_GOODS' | 'OUTDOOR' | 'TOYS'>} */
+const CATEGORIES = ['ELECTRONICS', 'FURNITURE', 'HOME_APPLIANCES', 'SPORTING_GOODS', 'OUTDOOR', 'TOYS'];
 
 /**
  * @param {{ formData: ProductFormData, updateFormData: Function }} props
