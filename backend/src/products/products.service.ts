@@ -86,12 +86,28 @@ export class ProductsService {
     });
   }  
 
-  async getProductById(productId: string) {
+  async getProductById(userId: string, productId: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       include: {
         user: true,
       },
+    });
+    
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+  
+    if (product.userId !== userId) {
+      throw new ForbiddenException('Not authorized to view this product');
+    }
+  
+    return product;
+  }
+
+  async getPublicProductById(productId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
     });
   
     if (!product) {
@@ -100,6 +116,7 @@ export class ProductsService {
   
     return product;
   }
+  
   
   async getAllProducts() {
     return this.prisma.product.findMany({
