@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, useMutation, gql } from '@apollo/client';
 
-// Define the query
 const GET_PUBLIC_PRODUCT_BY_ID = gql`
   query GetPublicProductById($id: String!) {
     getPublicProductById(id: $id) {
@@ -24,9 +23,44 @@ const GET_PUBLIC_PRODUCT_BY_ID = gql`
   }
 `;
 
+const BUY_PRODUCT = gql`
+  mutation BuyProduct($input: CreateTransactionInput!) {
+    createTransaction(input: $input) {
+      id
+      type
+      totalAmount
+      createdAt
+      product {
+        name
+        price
+      }
+      seller {
+        email
+      }
+    }
+  }
+`;
+
+const RENT_PRODUCT = gql`
+  mutation RentProduct($input: CreateTransactionInput!) {
+    createTransaction(input: $input) {
+      id
+      type
+      totalAmount
+      rentalStartDate
+      rentalEndDate
+      product {
+        name
+        rentPrice
+      }
+    }
+  }
+`;
+
 const ProductDetails = ({ id }) => {
   const [showModal, setShowModal] = useState(false);
   const [isRenting, setIsRenting] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const email = localStorage.getItem("email");
   const password = localStorage.getItem("password");
@@ -39,8 +73,10 @@ const ProductDetails = ({ id }) => {
         "password": password || "",
       },
     },
-    onError: (err) => console.error('Failed to fetch product:', err),
   });
+
+  const [buyProduct] = useMutation(BUY_PRODUCT);
+  const [rentProduct] = useMutation(RENT_PRODUCT);
 
   const handleTransaction = (type) => {
     setIsRenting(type === 'rent');
@@ -49,11 +85,40 @@ const ProductDetails = ({ id }) => {
 
   const handleConfirm = async () => {
     try {
-      const transactionType = isRenting ? 'rental' : 'purchase';
-      console.log(`Processing ${transactionType}`);
+      if (isRenting) {
+        const totalAmount = data.getPublicProductById.rentPrice * quantity;
+        const rentalStartDate = new Date().toISOString().split('T')[0];
+        const rentalEndDate = new Date();
+        rentalEndDate.setDate(rentalEndDate.getDate() + 7);
+        const rentalEndDateString = rentalEndDate.toISOString().split('T')[0];
+
+        await rentProduct({
+          variables: {
+            input: {
+              type: 'RENT',
+              productId: data.getPublicProductById.id,
+              rentalStartDate,
+              rentalEndDate: rentalEndDateString,
+              count: quantity,
+            },
+          },
+        });
+      } else {
+        const totalAmount = data.getPublicProductById.price * quantity;
+
+        await buyProduct({
+          variables: {
+            input: {
+              type: 'PURCHASE',
+              productId: data.getPublicProductById.id,
+              count: quantity,
+            },
+          },
+        });
+      }
       setShowModal(false);
     } catch (error) {
-      console.error(`Transaction failed:`, error);
+      console.error('Transaction failed:', error);
     }
   };
 
@@ -68,6 +133,11 @@ const ProductDetails = ({ id }) => {
   const formattedPrice = useMemo(
     () => product?.price?.toLocaleString('en-US', { minimumFractionDigits: 2 }),
     [product?.price]
+  );
+
+  const formattedRentPrice = useMemo(
+    () => product?.rentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2 }),
+    [product?.rentPrice]
   );
 
   if (loading)
@@ -108,7 +178,7 @@ const ProductDetails = ({ id }) => {
           <p className="text-lg font-medium">Price: ${formattedPrice}</p>
           {product.rentPrice && (
             <p className="text-lg font-medium">
-              Rent Price: ${product.rentPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}/day
+              Rent Price: ${formattedRentPrice}/day
             </p>
           )}
           <p className="text-sm text-gray-500">Categories: {product.categories.join(', ')}</p>
@@ -119,6 +189,13 @@ const ProductDetails = ({ id }) => {
         </div>
 
         <div className="flex gap-4 pt-4">
+          <input
+            type="number"
+            value={quantity}
+            onChange={(e) => setQuantity(Number(e.target.value))}
+            min="1"
+            className="w-16 border rounded-md p-2"
+          />
           <button
             onClick={() => handleTransaction('buy')}
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition"
@@ -152,8 +229,8 @@ const ProductDetails = ({ id }) => {
                 </h2>
                 <p className="mb-6">
                   {isRenting
-                    ? `Do you want to rent this item for $${product.rentPrice}/day?`
-                    : `Do you want to buy this item for $${product.price}?`}
+                    ? `Do you want to rent this item for $${formattedRentPrice} per day?`
+                    : `Do you want to buy this item for $${formattedPrice}?`}
                 </p>
                 <div className="flex justify-end gap-3">
                   <button
