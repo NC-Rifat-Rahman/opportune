@@ -1,4 +1,4 @@
-Backend Project
+<b>Backend Project</b>
 This is a backend project built with Nest.js, PostgreSQL, Prisma, and GraphQL.
 
 Setup
@@ -10,13 +10,13 @@ Create a .env file containing the following environment variable:
 
 Install the necessary dependencies:<br>
 
-- npm i
+- npm i<br>
 Set up the database by running the Prisma migration:
 
 - npx prisma migrate dev --name init
 - npx prisma generate
 
-Frontend Project<br>
+<b>Frontend Project<b><br>
 To set up the frontend project, run the following command to install all the necessary dependencies:<br>
 
 - npm i
