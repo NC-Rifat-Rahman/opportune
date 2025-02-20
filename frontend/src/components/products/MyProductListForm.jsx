@@ -123,8 +123,6 @@ const ProductList = () => {
       </div>
 
       <div className="space-y-4">
-        console.log(data.myProducts);
-        
         {data.myProducts.map((product) => (
           <div
             key={product.id}

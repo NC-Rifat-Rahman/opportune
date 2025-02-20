@@ -1,19 +1,25 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
 
-const GET_PRODUCT_BY_ID = gql`
-  query GetProductById($id: String!) {
-    getProductById(id: $id) {
+// Define the query
+const GET_PUBLIC_PRODUCT_BY_ID = gql`
+  query GetPublicProductById($id: String!) {
+    getPublicProductById(id: $id) {
       id
       name
       description
       price
       rentPrice
-      categories
+      userId
+      available
       user {
         id
         email
       }
+      categories
+      count
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -22,13 +28,20 @@ const ProductDetails = ({ id }) => {
   const [showModal, setShowModal] = useState(false);
   const [isRenting, setIsRenting] = useState(false);
 
-  const { loading, error, data } = useQuery(GET_PRODUCT_BY_ID, {
+  const email = localStorage.getItem("email");
+  const password = localStorage.getItem("password");
+
+  const { loading, error, data } = useQuery(GET_PUBLIC_PRODUCT_BY_ID, {
     variables: { id },
+    context: {
+      headers: {
+        "email": email || "",
+        "password": password || "",
+      },
+    },
     onError: (err) => console.error('Failed to fetch product:', err),
   });
 
-  console.log(error);
-  
   const handleTransaction = (type) => {
     setIsRenting(type === 'rent');
     setShowModal(true);
@@ -50,7 +63,7 @@ const ProductDetails = ({ id }) => {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showModal]);
 
-  const product = data?.getProductById;
+  const product = data?.getPublicProductById;
 
   const formattedPrice = useMemo(
     () => product?.price?.toLocaleString('en-US', { minimumFractionDigits: 2 }),
@@ -100,6 +113,9 @@ const ProductDetails = ({ id }) => {
           )}
           <p className="text-sm text-gray-500">Categories: {product.categories.join(', ')}</p>
           <p className="text-sm text-gray-500">Seller: {product.user.email}</p>
+          <p className="text-sm text-gray-500">Available: {product.available ? 'Yes' : 'No'}</p>
+          <p className="text-sm text-gray-500">Created At: {new Date(product.createdAt).toLocaleString()}</p>
+          <p className="text-sm text-gray-500">Updated At: {new Date(product.updatedAt).toLocaleString()}</p>
         </div>
 
         <div className="flex gap-4 pt-4">

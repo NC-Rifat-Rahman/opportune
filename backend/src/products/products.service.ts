@@ -108,8 +108,11 @@ export class ProductsService {
   async getPublicProductById(productId: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
+      include: {
+        user: true,
+      },
     });
-  
+    
     if (!product) {
       throw new NotFoundException('Product not found');
     }
