@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float, Int } from '@nestjs/graphql';
 import { User } from 'src/auth/models/user.model';
 import { Category } from './category.enum';
 
@@ -30,6 +30,9 @@ export class Product {
 
   @Field(() => [Category])
   categories: Category[];
+
+  @Field(() => Int)
+  count: number;
 
   @Field()
   createdAt: Date;

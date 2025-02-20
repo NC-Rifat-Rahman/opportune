@@ -2,14 +2,13 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../database/prisma.service';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
-import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) { }
 
   async createProduct(userId: string, input: CreateProductInput) {
-    const { name, description, price, rentPrice, categories } = input
+    const { name, description, price, rentPrice, categories , count} = input
 
     const modifiedName = name.toLowerCase().replace(/\s+/g, '-');
 
@@ -20,6 +19,7 @@ export class ProductsService {
         price,
         rentPrice,
         categories,
+        count,
         userId,
       },
       include: {
@@ -86,20 +86,40 @@ export class ProductsService {
     });
   }  
 
-  async getProductById(productId: string) {
+  async getProductById(userId: string, productId: string) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       include: {
         user: true,
       },
     });
+    
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
   
+    if (product.userId !== userId) {
+      throw new ForbiddenException('Not authorized to view this product');
+    }
+  
+    return product;
+  }
+
+  async getPublicProductById(productId: string) {
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+      include: {
+        user: true,
+      },
+    });
+    
     if (!product) {
       throw new NotFoundException('Product not found');
     }
   
     return product;
   }
+  
   
   async getAllProducts() {
     return this.prisma.product.findMany({

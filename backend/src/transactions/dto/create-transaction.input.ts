@@ -1,5 +1,5 @@
-import { InputType, Field, Float } from '@nestjs/graphql';
-import { IsNotEmpty, IsEnum, IsUUID, IsDate, IsOptional } from 'class-validator';
+import { InputType, Field, Float, Int } from '@nestjs/graphql';
+import { IsNotEmpty, IsEnum, IsUUID, IsDate, IsOptional, IsNumber, Min } from 'class-validator';
 import { TransactionType } from '../models/transaction.model';
 
 @InputType()
@@ -21,4 +21,9 @@ export class CreateTransactionInput {
   @IsDate()
   @IsOptional()
   rentalEndDate?: Date;
+
+  @Field(() => Int)
+  @IsNumber()
+  @Min(1)
+  count: number;
 }

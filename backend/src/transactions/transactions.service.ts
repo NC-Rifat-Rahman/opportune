@@ -1,4 +1,3 @@
-// src/transactions/transactions.service.ts
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { CreateTransactionInput } from './dto/create-transaction.input';
 import { TransactionType } from './models/transaction.model';
@@ -13,28 +12,38 @@ export class TransactionsService {
       where: { id: input.productId },
       include: { user: true },
     });
-
+  
     if (!product) {
       throw new NotFoundException('Product not found');
     }
-
+  
     if (!product.available) {
       throw new ConflictException('Product is not available');
     }
-
+  
     if (product.userId === userId) {
       throw new ConflictException('Cannot buy/rent your own product');
     }
-
-    // Check if rental is possible for this product
+  
     if (input.type === TransactionType.RENT && !product.rentPrice) {
       throw new BadRequestException('This product is not available for rent');
     }
-
-    const totalAmount = input.type === TransactionType.PURCHASE
-      ? product.price
-      : (product.rentPrice || 0) * this.calculateRentalDays(input.rentalStartDate, input.rentalEndDate);
-
+  
+    if (input.count <= 0) {
+      throw new BadRequestException('Invalid count value');
+    }
+  
+    if (product.count < input.count) {
+      throw new ConflictException(`Not enough stock available. Only ${product.count} left.`);
+    }
+  
+    const rentalDays = input.type === TransactionType.RENT
+      ? this.calculateRentalDays(input.rentalStartDate, input.rentalEndDate)
+      : 1;
+  
+    const unitPrice = input.type === TransactionType.PURCHASE ? product.price : (product.rentPrice || 0);
+    const totalAmount = unitPrice * input.count * rentalDays;
+  
     const transaction = await this.prisma.transaction.create({
       data: {
         type: input.type,
@@ -44,6 +53,7 @@ export class TransactionsService {
         rentalStartDate: input.rentalStartDate,
         rentalEndDate: input.rentalEndDate,
         totalAmount,
+        count: input.count,
       },
       include: {
         product: true,
@@ -51,15 +61,18 @@ export class TransactionsService {
         seller: true,
       },
     });
-
-    // Update product availability
-    await this.prisma.product.update({
+  
+    const updatedProduct = await this.prisma.product.update({
       where: { id: input.productId },
-      data: { available: false },
+      data: { 
+        count: product.count - input.count, 
+        available: product.count - input.count > 0
+      },
     });
-
+  
     return transaction;
   }
+  
 
   private calculateRentalDays(startDate?: Date, endDate?: Date): number {
     if (!startDate || !endDate) return 1;

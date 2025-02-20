@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, gql } from '@apollo/client';
-import { useNavigate } from 'react-router-dom';
 import { Trash2, Edit } from 'lucide-react';
 
 const GET_ALL_PRODUCTS = gql`
@@ -31,7 +30,6 @@ const DELETE_PRODUCT = gql`
 `;
 
 const ProductList = () => {
-  const navigate = useNavigate();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -65,13 +63,13 @@ const ProductList = () => {
   });
 
   const handleDeleteClick = (e, product) => {
-    e.stopPropagation(); // Prevent triggering the product click
+    e.stopPropagation(); 
     setProductToDelete(product);
     setDeleteModalOpen(true);
   };
 
   const handleProductClick = (product) => {
-    navigate(`/products/update/${product.id}`);
+    window.location.href = `/products/update/${product.id}`;
   };
 
   const handleConfirmDelete = async () => {
@@ -92,7 +90,7 @@ const ProductList = () => {
   };
 
   const handleLoginRedirect = () => {
-    navigate('/login');
+    window.location.href = '/login';
   };
 
   if (!isAuthenticated) {
@@ -117,7 +115,7 @@ const ProductList = () => {
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold">My Products</h1>
         <button
-          onClick={() => navigate('/products/create')}
+          onClick={() => window.location.href = '/products/create'}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
         >
           Add Product

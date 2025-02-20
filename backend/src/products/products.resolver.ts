@@ -44,10 +44,14 @@ export class ProductsResolver {
 
   @Query(() => Product)
   @UseGuards(AuthGuard)
-  async getProductById(@Args('id') id: string) {
-    return this.productsService.getProductById(id);
+  async getProductById(@CurrentUser() user: { id: string }, @Args('id') id: string) {
+    return this.productsService.getProductById(user.id, id);
   }
 
+  @Query(() => Product)
+  async getPublicProductById(@Args('id') id: string) {
+    return this.productsService.getPublicProductById(id);
+  }
 
   @Query(() => [Product])
   @UseGuards(AuthGuard)
