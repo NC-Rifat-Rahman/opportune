@@ -8,7 +8,7 @@ Follow the steps below to set up the project locally:
 Create a .env file containing the following environment variable:
 - DATABASE_URL="postgresql://username:password@localhost:5432/db_name"
 
-Install the necessary dependencies:
+Install the necessary dependencies:<br>
 
 - npm i
 Set up the database by running the Prisma migration:
@@ -16,7 +16,7 @@ Set up the database by running the Prisma migration:
 - npx prisma migrate dev --name init
 - npx prisma generate
 
-Frontend Project
-To set up the frontend project, run the following command to install all the necessary dependencies:
+Frontend Project<br>
+To set up the frontend project, run the following command to install all the necessary dependencies:<br>
 
 - npm i
