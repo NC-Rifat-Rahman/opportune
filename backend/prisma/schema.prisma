@@ -34,6 +34,7 @@ model Product {
   userId      String
   transactions Transaction[]
   available   Boolean     @default(true)
+  count       Int         @default(0)
 }
 
 model Transaction {
@@ -48,6 +49,7 @@ model Transaction {
   rentalStartDate DateTime?
   rentalEndDate   DateTime?
   totalAmount     Float
+  count           Int 
   createdAt       DateTime      @default(now())
 }
 

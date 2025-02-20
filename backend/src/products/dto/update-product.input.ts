@@ -1,4 +1,4 @@
-import { InputType, Field, Float } from '@nestjs/graphql';
+import { InputType, Field, Float, Int } from '@nestjs/graphql';
 import { IsString, IsNumber, Min, IsOptional, IsArray, IsEnum } from 'class-validator';
 import { Category } from '../models/category.enum';
 
@@ -27,4 +27,9 @@ export class UpdateProductInput {
   @IsArray()
   @IsEnum(Category, { each: true })
   categories: Category[];
+
+  @Field(() => Int)
+  @IsNumber()
+  @Min(0)
+  count: number
 }
