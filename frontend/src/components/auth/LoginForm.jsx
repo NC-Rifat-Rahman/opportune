@@ -1,7 +1,6 @@
 import React from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from './AuthLayout';
 import { client } from '../../apollo/client';
 
@@ -17,7 +16,6 @@ const LOGIN_MUTATION = gql`
 `;
 
 const LoginForm = () => {
-  const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
 
   const [login, { loading, error }] = useMutation(LOGIN_MUTATION, {
@@ -47,7 +45,8 @@ const LoginForm = () => {
           },
         });
 
-        navigate('/products/create');
+        // Redirect using window.location (no react-router-dom)
+        window.location.href = '/products/create';
       }
     },
     onError: (err) => {
@@ -95,9 +94,9 @@ const LoginForm = () => {
 
         <div className="text-center">
           <span className="text-sm">Don't have an account? </span>
-          <Link to="/register" className="text-indigo-600 hover:text-indigo-800">
+          <a href="/register" className="text-indigo-600 hover:text-indigo-800">
             Signup
-          </Link>
+          </a>
         </div>
       </form>
     </AuthLayout>
