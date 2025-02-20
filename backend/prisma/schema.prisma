@@ -1,12 +1,12 @@
 generator client {
-    provider = "prisma-client-js"
-  }
-  
-  datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-  }
-  
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 enum Category {
   ELECTRONICS
   FURNITURE
@@ -22,35 +22,35 @@ enum TransactionType {
 }
 
 model Product {
-  id          String       @id @default(uuid())
-  name        String
-  description String?
-  price       Float
-  rentPrice   Float?   
-  categories  Category[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  user        User        @relation("UserProducts", fields: [userId], references: [id])
-  userId      String
+  id           String        @id @default(uuid())
+  name         String
+  description  String?
+  price        Float
+  rentPrice    Float?   
+  categories   Category[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User          @relation("UserProducts", fields: [userId], references: [id])
+  userId       String
   transactions Transaction[]
-  available   Boolean     @default(true)
-  count       Int         @default(0)
+  available    Boolean       @default(true)
+  count        Int           @default(0)
 }
 
 model Transaction {
-  id            String          @id @default(uuid())
-  type          TransactionType
-  product       Product         @relation(fields: [productId], references: [id])
-  productId     String
-  seller        User            @relation("SellerTransactions", fields: [sellerId], references: [id])
-  sellerId      String
-  buyer         User            @relation("BuyerTransactions", fields: [buyerId], references: [id])
-  buyerId       String
+  id             String          @id @default(uuid())
+  type           TransactionType
+  product        Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productId      String?
+  seller         User            @relation("SellerTransactions", fields: [sellerId], references: [id])
+  sellerId       String
+  buyer          User            @relation("BuyerTransactions", fields: [buyerId], references: [id])
+  buyerId        String
   rentalStartDate DateTime?
   rentalEndDate   DateTime?
   totalAmount     Float
-  count           Int 
-  createdAt       DateTime      @default(now())
+  count          Int 
+  createdAt      DateTime        @default(now())
 }
 
 model User {
