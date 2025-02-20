@@ -2,7 +2,6 @@ import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/commo
 import { PrismaService } from '../database/prisma.service';
 import { CreateProductInput } from './dto/create-product.input';
 import { UpdateProductInput } from './dto/update-product.input';
-import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {

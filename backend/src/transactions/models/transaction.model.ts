@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Float, registerEnumType } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float, registerEnumType, Int } from '@nestjs/graphql';
 import { User } from '../../auth/models/user.model';
 import { Product } from '../../products/models/product.model';
 
@@ -37,6 +37,9 @@ export class Transaction {
   @Field(() => Float)
   totalAmount: number;
 
+  @Field(() => Int)
+  count: number;
+  
   @Field()
   createdAt: Date;
 }

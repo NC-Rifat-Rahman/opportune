@@ -12,6 +12,7 @@ const CREATE_PRODUCT_MUTATION = gql`
       description
       price
       rentPrice
+      count
       categories
       createdAt
       updatedAt
@@ -32,6 +33,7 @@ const CREATE_PRODUCT_MUTATION = gql`
  * @property {string} description
  * @property {number} price
  * @property {number} rentPrice
+ * @property {number} count
  * @property {Array<string>} categories
  */
 
@@ -93,6 +95,16 @@ const PriceAndCategories = ({ formData, updateFormData }) => (
       />
     </div>
     <div>
+      <label className="block text-sm font-medium mb-2">Product Count</label>
+      <input
+        type="number"
+        placeholder="e.g., 100"
+        value={formData.count || ''}
+        onChange={(e) => updateFormData('count', parseInt(e.target.value, 10))}
+        className="w-full p-2 border rounded-md"
+      />
+    </div>
+    <div>
       <label className="block text-sm font-medium mb-2">Category</label>
       <select 
         value={formData.categories?.[0] || ''} 
@@ -134,6 +146,10 @@ const Review = ({ formData }) => (
         <p className="text-gray-600">${formData.rentPrice?.toFixed(2)}</p>
       </div>
       <div>
+        <p className="font-medium">Count</p>
+        <p className="text-gray-600">{formData.count}</p>
+      </div>
+      <div>
         <p className="font-medium">Categories</p>
         <p className="text-gray-600">{formData.categories?.join(', ')}</p>
       </div>
@@ -148,6 +164,7 @@ const ProductCreationForm = () => {
     description: '',
     price: 0,
     rentPrice: 0,
+    count: 0,
     categories: []
   });
 
@@ -187,6 +204,7 @@ const ProductCreationForm = () => {
             description: formData.description,
             price: formData.price,
             rentPrice: formData.rentPrice,
+            count: formData.count,
             categories: formData.categories
           }
         }

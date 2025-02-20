@@ -59,6 +59,7 @@ type Mutation {
 type Product {
   available: Boolean
   categories: [Category!]!
+  count: Int!
   createdAt: DateTime!
   description: String
   id: ID!
@@ -88,6 +89,7 @@ input RegisterInput {
 
 type Transaction {
   buyer: User!
+  count: Int!
   createdAt: DateTime!
   id: ID!
   product: Product!
